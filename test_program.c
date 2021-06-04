@@ -9,5 +9,5 @@ int main(){
     if(a == 3){
         a++;
     }
-    float c = 2.0;
+    float c = 2;
 }
