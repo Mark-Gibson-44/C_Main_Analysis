@@ -9,7 +9,7 @@ import optimization
 if __name__ == "__main__":
 
     l = Lex_main.Lexer(Extract_main.extract_main("test_program.c"))
-
+   
     p = Parse_main.Parse(l.tokens)
 
     p.program()
@@ -21,3 +21,4 @@ if __name__ == "__main__":
     s.var_traverse(s.ir)
 
     print(s.scope.scope)
+    

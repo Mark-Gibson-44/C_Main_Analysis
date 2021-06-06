@@ -44,7 +44,36 @@ class Parse:
         self.ast = node("Program")
         self.traversal_ptr = self.ast
         pass
+    """
     
+    """
+    def r_val(self, lookahead=1):
+        if self.tokens[lookahead][0] not in [LexTokens.Add_Subtract, LexTokens.Multiply_Divide]:
+            self.match(self.tokens[self.current_token][0])
+            return
+
+
+        if self.tokens[lookahead][0] == LexTokens.Multiply_Divide:
+            _mul = node("Mul")
+            self.traversal_ptr.addNode(_mul)
+            self.traversal_ptr = _mul
+            self.match(self.tokens[self.current_token][0])
+            self.match(LexTokens.Multiply_Divide)
+            self.match(self.tokens[self.current_token][0])
+            self.traversal_ptr = self.traversal_ptr.get_parent()
+        
+        if self.tokens[self.current_token][0] in [LexTokens.Add_Subtract, LexTokens.Multiply_Divide]:
+            self.match(self.tokens[self.current_token][0])
+            self.r_val()
+        if self.tokens[lookahead][0] == LexTokens.Add_Subtract:
+            pass
+        
+        
+        
+        
+
+        
+        pass
 
     def expr(self):
         
@@ -66,6 +95,7 @@ class Parse:
             
             self.match(LexTokens.int_literal)
         
+        
         if self.tokens[self.current_token][0] == LexTokens.var_name and self.tokens[self.lookahead_token][0] == LexTokens.Equality:
             self.match(LexTokens.var_name)
             
@@ -74,10 +104,13 @@ class Parse:
                 self.match(LexTokens.int_literal)
             else:
                 self.match(LexTokens.var_name)
+            
             self.traversal_ptr = self.traversal_ptr.get_parent()
         if self.tokens[self.current_token][0] == LexTokens.var_name and self.tokens[self.lookahead_token][0] == LexTokens.Increment:
             self.match(LexTokens.var_name)
             self.match(LexTokens.Increment)
+        if self.tokens[self.current_token][0] == LexTokens.var_name:
+            self.match(LexTokens.var_name)
         pass
     
     def block(self):

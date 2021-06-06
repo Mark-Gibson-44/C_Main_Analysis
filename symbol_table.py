@@ -12,7 +12,11 @@ class symbol_table:
     def add_assign(self, node, val = None):
         self.scope[node.text] = val
     
-    
+    def re_assign_var(self, var, val):
+        if self.in_scope(var):
+            self.scope[var] = val
+        elif self.outer_scope is not None:
+            self.outer_scope.re_assign_var(var, val)
 
     def in_scope(self, var):
         
@@ -32,14 +36,33 @@ class semantics:
     def __init__(self, ir):
         self.ir = ir
         self.scope = symbol_table()
+
+    def eval_r_val(self, rhs):
+        accum = 0
+        for elements in rhs:
+            if elements.token == LexTokens.var_name:
+                accum += self.scope.scope[elements.text]
+            else:
+                accum += int(elements.text)
+        return accum
+    
+    def inc_dec(self, var_node, inc_node):
+        if inc_node.text == "++":
+            self.scope.add_assign(var_node, self.scope.scope[var_node.text] + 1)
+        else:
+            self.scope.add_assign(var_node, self.scope.scope[var_node.text] - 1)
+
     def assign(self, expr):
         var_name = None
         for lex in expr:
             if lex.token == LexTokens.var_name:
                 var_name = lex
             if lex.text == "RHS":
-                print("RHIGHT")
-                #self.scope.add_assign(var_name, int(lex.text))    
+                
+                self.scope.add_assign(var_name, self.eval_r_val(lex.children))
+            if lex.token == LexTokens.Increment:
+                self.inc_dec(var_name, lex)
+                
         pass
     
     def init_var(self, expr):
@@ -55,6 +78,8 @@ class semantics:
             if node.token == LexTokens.var_type:
                 self.init_var(expr)
             if node.token == LexTokens.assignment :
+                self.assign(expr)
+            if node.token == LexTokens.Increment:
                 self.assign(expr)
         
         

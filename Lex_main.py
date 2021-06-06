@@ -17,6 +17,8 @@ class LexTokens(enum.Enum):
     Equality = 12
     Increment = 13
     Arithmetic = 14
+    Multiply_Divide = 15
+    Add_Subtract = 16
 
 class Lexer :
     def __init__(self, string_stream):
@@ -135,11 +137,17 @@ class Lexer :
 
     def arithmetic(self):
         buff = self.cur_char
+        
+
         self.consume()
+        if buff in ['*', '/']:
+            return (LexTokens.Multiply_Divide, buff)
+            
         if self.cur_char == buff:
             self.consume()
             return (LexTokens.Increment, '{0}{1}'.format(buff, buff))
-        return (LexTokens.Arithmetic, buff)
+        
+        return (LexTokens.Add_Subtract, buff)
 
     def next_token(self):
         while self.cur_char:
