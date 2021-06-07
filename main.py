@@ -21,4 +21,4 @@ if __name__ == "__main__":
     s.var_traverse(s.ir)
 
     print(s.scope.scope)
-    
+    print(s.branches)

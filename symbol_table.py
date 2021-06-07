@@ -25,6 +25,8 @@ class symbol_table:
         if self.outer_scope is None:
             return False
         return self.outer_scope.in_scope(var)
+    def in_local_scope(self, var):
+        return var in self.scope
     
     
         
@@ -36,6 +38,7 @@ class semantics:
     def __init__(self, ir):
         self.ir = ir
         self.scope = symbol_table()
+        self.branches = []
 
     def eval_r_val(self, rhs):
         accum = 0
@@ -64,7 +67,13 @@ class semantics:
                 self.inc_dec(var_name, lex)
                 
         pass
-    
+    def expr_is_constant(self, expr):
+        const = True
+        for leaves in expr.children:
+            if leaves.token == LexTokens.var_name:
+                const &= self.scope.in_local_scope(leaves.text)
+        return const
+
     def init_var(self, expr):
         
         for lex in expr:
@@ -88,7 +97,16 @@ class semantics:
         if(leaf.text == "EXPR" or "statement" in leaf.text):
             
             self.eval_node(leaf.children)
-            
+        if (leaf.token == LexTokens.left_brace):
+            pass#self.scope = symbol_table(self.scope)
+        if (leaf.token == LexTokens.right_brace):
+            #if self.scope.outer is not None:
+            #   self.scope = self.scope.outer
+            pass#self.scope = self.scope.outer
+        if leaf.text == "Bool_Expr":
+            print("BOOLEAN EXPRESSION IS CONSTANT? {}".format(self.expr_is_constant(leaf)))
+        if leaf.text == "BLOCK":
+            self.branches.append(leaf)
         for leaves in leaf.children:
             
             self.var_traverse(leaves)

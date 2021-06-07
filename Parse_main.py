@@ -97,13 +97,18 @@ class Parse:
         
         
         if self.tokens[self.current_token][0] == LexTokens.var_name and self.tokens[self.lookahead_token][0] == LexTokens.Equality:
+            _bool = node("Bool_Expr")
+            self.traversal_ptr.addNode(_bool)
+            self.traversal_ptr = _bool
             self.match(LexTokens.var_name)
             
             self.match(LexTokens.Equality)
+
             if self.tokens[self.current_token][0] == LexTokens.int_literal:
                 self.match(LexTokens.int_literal)
             else:
                 self.match(LexTokens.var_name)
+            self.traversal_ptr = self.traversal_ptr.get_parent()
             
             self.traversal_ptr = self.traversal_ptr.get_parent()
         if self.tokens[self.current_token][0] == LexTokens.var_name and self.tokens[self.lookahead_token][0] == LexTokens.Increment:
