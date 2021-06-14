@@ -97,7 +97,7 @@ class Parse:
         
         
         if self.tokens[self.current_token][0] == LexTokens.var_name and self.tokens[self.lookahead_token][0] == LexTokens.Equality:
-            _bool = node("Bool_Expr")
+            _bool = node("Bool_EXPR")
             self.traversal_ptr.addNode(_bool)
             self.traversal_ptr = _bool
             self.match(LexTokens.var_name)

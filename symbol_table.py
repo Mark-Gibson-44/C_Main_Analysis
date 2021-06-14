@@ -1,6 +1,14 @@
 from Lex_main import LexTokens
 import Parse_main as p
 
+import enum
+class Types(enum.Enum):
+    _int = 0
+    _float = 1
+    _bool = 2
+    _char = 3
+
+
 
 
 class symbol_table:
@@ -27,19 +35,23 @@ class symbol_table:
         return self.outer_scope.in_scope(var)
     def in_local_scope(self, var):
         return var in self.scope
-    
-    
         
-
-    
 
 class semantics:
 
     def __init__(self, ir):
         self.ir = ir
         self.scope = symbol_table()
-        self.branches = []
+        self.cfg_edges = [ir]#First statement beginning of cfg
 
+        self.valid_type = {
+            (Types._int,Types._int): True,
+            (Types._int, Types._float): False,
+            (Types._int, Types._char): False,
+            (Types._float, Types._int): True,
+            (Types._float, Types._char): False
+
+        }
     def eval_r_val(self, rhs):
         accum = 0
         for elements in rhs:
@@ -106,19 +118,43 @@ class semantics:
         if leaf.text == "Bool_Expr":
             print("BOOLEAN EXPRESSION IS CONSTANT? {}".format(self.expr_is_constant(leaf)))
         if leaf.text == "BLOCK":
-            self.branches.append(leaf)
+            self.cfg_edges.append(leaf)
         for leaves in leaf.children:
             
             self.var_traverse(leaves)
     
+    def deduce_type(self, data):
+        val = data.text
+        if data.token == LexTokens.var_name:
+            val = str(self.scope.scope[data.text])
+        if '.' in val:
+            return Types._float
+        else:
+            return Types._int
+
     def type_check(self, expr):
-        pass
+        left = 0
+        right =1
+        expr_types = [None, None]
+        arg_num = 0
+        for part in expr:
+            
+            if part.token in [LexTokens.var_name, LexTokens.int_literal]:
+                expr_types[arg_num] = self.deduce_type(part)
+                arg_num += 1
+
+        
+        return self.valid_type[(expr_types[left]), expr_types[right]]
+            
 
     def type_traverse(self, leaf):
-        if(leaf.text == "EXPR"):
-            self.type_check(leaf.children)
-            return
+        valid = True
+        if("_EXPR" in leaf.text):
+            valid &= self.type_check(leaf.children)
+            
         for leaves in leaf.children:
-            self.type_traverse(leaf)
+            self.type_traverse(leaves)
+        return valid
+        
         
     

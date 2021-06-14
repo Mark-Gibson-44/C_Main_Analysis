@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
     s = symbol_table.semantics(p.ast)
     s.var_traverse(s.ir)
-
-    print(s.scope.scope)
-    print(s.branches)
+    print("TYPE CHECKING: RESULT {} ".format(s.type_traverse(s.ir)))
+    #print(s.scope.scope)
+    for edge in s.cfg_edges:
+        print("BRANCH: with Node {}".format(edge.text))
